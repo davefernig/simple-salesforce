@@ -4,7 +4,6 @@
 # has to be defined prior to login import
 DEFAULT_API_VERSION = '29.0'
 
-
 import requests
 import json
 
@@ -32,7 +31,7 @@ class Salesforce(object):
     """
     # pylint: disable=too-many-arguments
     def __init__(
-            self, username=None, password=None, security_token=None,
+            self, username=None, password=None, security_token=None, verify=True,
             session_id=None, instance=None, instance_url=None,
             organizationId=None, sandbox=False, version=DEFAULT_API_VERSION,
             proxies=None, session=None):
@@ -74,6 +73,7 @@ class Salesforce(object):
         self.sf_version = version
         self.sandbox = sandbox
         self.proxies = proxies
+        self.verify = verify
 
         # Determine if the user wants to use our username/password auth or pass
         # in their own information
@@ -89,7 +89,8 @@ class Salesforce(object):
                 security_token=security_token,
                 sandbox=self.sandbox,
                 sf_version=self.sf_version,
-                proxies=self.proxies)
+                proxies=self.proxies,
+                verify=self.verify)
 
         elif all(arg is not None for arg in (
                 session_id, instance or instance_url)):
@@ -115,7 +116,8 @@ class Salesforce(object):
                 organizationId=organizationId,
                 sandbox=self.sandbox,
                 sf_version=self.sf_version,
-                proxies=self.proxies)
+                proxies=self.proxies,
+                verify=self.verify)
 
         else:
             raise TypeError(
@@ -179,7 +181,7 @@ class Salesforce(object):
 
         return SFType(
             name, self.session_id, self.sf_instance, self.sf_version,
-            self.proxies)
+            self.proxies, verify=self.verify)
 
     # User utlity methods
     def set_password(self, user, password):
@@ -431,7 +433,7 @@ class SFType(object):
     # pylint: disable=too-many-arguments
     def __init__(
             self, object_name, session_id, sf_instance, sf_version='27.0',
-            proxies=None):
+            proxies=None, verify=True):
         """Initialize the instance with the given parameters.
 
         Arguments:
@@ -447,7 +449,7 @@ class SFType(object):
         self.name = object_name
         self.request = requests.Session()
         self.request.proxies = proxies
-
+        self.verify = verify
         self.base_url = (
             u'https://{instance}/services/data/v{sf_version}/sobjects'
             '/{object_name}/'.format(instance=sf_instance,
@@ -623,7 +625,7 @@ class SFType(object):
             'Authorization': 'Bearer ' + self.session_id,
             'X-PrettyPrint': '1'
         }
-        result = self.request.request(method, url, headers=headers, **kwargs)
+        result = self.request.request(method, url, headers=headers, verify=self.verify, **kwargs)
 
         if result.status_code >= 300:
             _exception_handler(result, self.name)

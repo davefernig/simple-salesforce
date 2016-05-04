@@ -15,7 +15,7 @@ import requests
 
 # pylint: disable=invalid-name,too-many-arguments,too-many-locals
 def SalesforceLogin(
-        username=None, password=None, security_token=None,
+        username=None, password=None, security_token=None, verify=True,
         organizationId=None, sandbox=False, sf_version=DEFAULT_API_VERSION,
         proxies=None, session=None):
     """Return a tuple of `(session_id, sf_instance)` where `session_id` is the
@@ -125,7 +125,8 @@ def SalesforceLogin(
     }
     response = (session or requests).post(
         soap_url, login_soap_request_body, headers=login_soap_request_headers,
-        proxies=proxies)
+        proxies=proxies,
+        verify=verify)
 
     if response.status_code != 200:
         except_code = getUniqueElementValueFromXmlString(
