@@ -433,7 +433,7 @@ class SFType(object):
     # pylint: disable=too-many-arguments
     def __init__(
             self, object_name, session_id, sf_instance, sf_version='27.0',
-            proxies=None, verify=None):
+            proxies=None, verify=True):
         """Initialize the instance with the given parameters.
 
         Arguments:
