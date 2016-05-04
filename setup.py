@@ -15,7 +15,7 @@ if sys.version_info < (3, 0):
 
 setup(
     name='simple-salesforce',
-    version='0.68.1',
+    version='0.68.2',
     author='Nick Catalano',
     packages=['simple_salesforce',],
     url='https://github.com/heroku/simple-salesforce',
